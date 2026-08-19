@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { stats } from "@/data/plan";
+import { pricing } from "@/data/plan";
+import { useProgram } from "@/components/ProgramProvider";
+import { money, plural } from "@/lib/format";
+import { programStats } from "@/lib/program-stats";
+import type { Program } from "@/data/types";
 
 function Slider({
   label,
@@ -23,10 +27,10 @@ function Slider({
   onChange: (v: number) => void;
 }) {
   return (
-    <div>
-      <div className="flex items-baseline justify-between">
-        <label className="font-semibold">{label}</label>
-        <span className="font-bold text-indigo-600 dark:text-indigo-400">{format(value)}</span>
+    <div className="border-t border-rule py-4">
+      <div className="flex items-baseline justify-between gap-4">
+        <label className="label text-ink">{label}</label>
+        <span className="num text-lg font-bold text-accent">{format(value)}</span>
       </div>
       <input
         type="range"
@@ -35,159 +39,171 @@ function Slider({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="mt-2 w-full accent-indigo-600"
+        className="mt-3 w-full accent-[var(--accent)]"
+        aria-label={label}
       />
-      <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">{hint}</p>
+      <p className="mt-2 max-w-[58ch] text-xs text-muted">{hint}</p>
     </div>
   );
 }
 
 export default function CostCalculator() {
-  const [sophiaMonths, setSophiaMonths] = useState(2);
-  const [studycomMonths, setStudycomMonths] = useState(2);
-  const [saylorExams, setSaylorExams] = useState(3);
-  const [clepExams, setClepExams] = useState(2);
-  const [wguTerms, setWguTerms] = useState(1);
+  const { program } = useProgram();
+  // Remounting on program change reseeds every slider from that program's own
+  // numbers, without an effect that fights the user's edits.
+  return <Calculator key={program.id} program={program} />;
+}
+
+function Calculator({ program }: { program: Program }) {
+  const sophiaCount = program.transferCourses.filter((c) => c.source === "sophia").length;
+  const studycomCount = program.transferCourses.filter((c) => c.source === "studycom").length;
+  const saylorCount = program.transferCourses.filter((c) => c.source === "saylor").length;
+  const clepCount = program.transferCourses.filter((c) => c.source === "clep").length;
+  const { wguCUs, terms: suggestedTerms, hasCourseData } = programStats(program);
+
+  const [sophiaMonths, setSophiaMonths] = useState(
+    sophiaCount ? Math.max(1, Math.ceil(sophiaCount / 6)) : 0,
+  );
+  const [studycomMonths, setStudycomMonths] = useState(
+    studycomCount ? Math.max(1, Math.ceil(studycomCount / 5)) : 0,
+  );
+  const [saylorExams, setSaylorExams] = useState(saylorCount);
+  const [clepExams, setClepExams] = useState(clepCount);
+  const [wguTerms, setWguTerms] = useState(suggestedTerms);
   const [pellPerYear, setPellPerYear] = useState(0);
 
-  const sophiaCost = sophiaMonths * stats.sophiaMonthly;
-  const studycomCost = studycomMonths * stats.studycomMonthly;
-  const saylorCost = saylorExams * stats.saylorExam;
-  const clepCost = clepExams * (stats.clepExam + 25); // exam + typical admin fee
-  const wguCost = wguTerms * (stats.wguTermTuition + stats.wguResourceFee) + stats.wguAppFee;
+  const sophiaCost = sophiaMonths * pricing.sophiaMonthly;
+  const studycomCost = studycomMonths * pricing.studycomMonthly;
+  const saylorCost = saylorExams * pricing.saylorExam;
+  const clepCost = clepExams * (pricing.clepExam + pricing.clepAdminFee);
+  const wguCost =
+    wguTerms * (program.tuitionPerTerm + program.resourceFeePerTerm) + pricing.wguAppFee;
   const gross = sophiaCost + studycomCost + saylorCost + clepCost + wguCost;
-  // Pell disburses half the annual award per 6-month term (two terms = one academic year)
+  // Pell disburses half the annual award per six-month term (two terms = one academic year).
   const pellApplied = Math.min((pellPerYear / 2) * wguTerms, wguCost);
   const net = gross - pellApplied;
-
-  // ~$11,950/yr average published in-state tuition & fees (College Board Trends 2025) × 4
-  const traditionalCost = 47800;
   const monthsTotal = sophiaMonths + studycomMonths + wguTerms * 6;
 
   const rows = [
-    { label: `Sophia (${sophiaMonths} mo)`, value: sophiaCost },
-    { label: `Study.com (${studycomMonths} mo)`, value: studycomCost },
-    { label: `Saylor (${saylorExams} exams)`, value: saylorCost },
-    { label: `CLEP (${clepExams} exams)`, value: clepCost },
-    { label: `WGU (${wguTerms} term${wguTerms > 1 ? "s" : ""} incl. $200/term resource fee + $65 app fee)`, value: wguCost },
-  ];
-
-  const fmt = (n: number) => `$${n.toLocaleString()}`;
+    { label: `Sophia · ${plural(sophiaMonths, "month")}`, value: sophiaCost },
+    { label: `Study.com · ${plural(studycomMonths, "month")}`, value: studycomCost },
+    { label: `Saylor · ${plural(saylorExams, "exam")}`, value: saylorCost },
+    { label: `CLEP · ${plural(clepExams, "exam")}`, value: clepCost },
+    {
+      label: `WGU · ${plural(wguTerms, "term")} (incl. fees)`,
+      value: wguCost,
+    },
+  ].filter((r) => r.value > 0);
 
   return (
     <div>
-      <div className="mx-auto max-w-2xl text-center">
-        <h1 className="text-4xl font-black tracking-tight">Cost calculator</h1>
-        <p className="mt-4 text-lg text-stone-600 dark:text-stone-300">
-          Drag the sliders to match your pace and see what the whole degree should cost.
+      <header className="border-t border-ink pt-4 pb-10">
+        <p className="label">/05 Calculator</p>
+        <h1 className="display mt-5 max-w-[13ch]">What it costs.</h1>
+        <p className="mt-6 text-xl font-bold tracking-tight text-accent">{program.name}</p>
+        <p className="mt-4 max-w-[64ch] text-lg text-muted">
+          {hasCourseData
+            ? "Sliders start pre-filled from this program's actual course counts. Drag them to match your pace."
+            : "Course-level data for this program is pending, so the sliders start from its total competency units. Drag them to match your pace."}
         </p>
-      </div>
+      </header>
 
-      <div className="mx-auto mt-10 grid max-w-4xl gap-8 lg:grid-cols-2">
-        {/* Inputs */}
-        <div className="space-y-6 rounded-2xl border border-stone-200 bg-white p-6 dark:border-stone-800 dark:bg-stone-900">
+      <div className="grid gap-x-14 gap-y-10 border-t border-ink pt-8 lg:grid-cols-2">
+        <div>
+          <p className="label pb-2">Your pace</p>
           <Slider
             label="Months on Sophia"
-            hint={`$${stats.sophiaMonthly}/month — most students clear all gen eds in 1–3 months`}
+            hint={`$${pricing.sophiaMonthly} a month · ${plural(sophiaCount, "Sophia course")} in this plan, two active at a time.`}
             value={sophiaMonths}
             min={0}
-            max={6}
+            max={8}
             format={(v) => `${v} mo`}
             onChange={setSophiaMonths}
           />
           <Slider
             label="Months on Study.com"
-            hint={`$${stats.studycomMonthly}/month for College Saver Pro (full catalog) — the $95 Saver tier is gen-ed only`}
+            hint={`$${pricing.studycomMonthly} a month for College Saver Pro · ${plural(studycomCount, "Study.com course")} in this plan. Finals are unlimited, so batch them.`}
             value={studycomMonths}
             min={0}
-            max={6}
+            max={8}
             format={(v) => `${v} mo`}
             onChange={setStudycomMonths}
           />
           <Slider
             label="Saylor exams"
-            hint="Courses are free; $5 per proctored final via SmarterProctoring"
+            hint={`Courses are free; $${pricing.saylorExam} per proctored final via SmarterProctoring.`}
             value={saylorExams}
             min={0}
-            max={6}
+            max={8}
             format={(v) => `${v}`}
             onChange={setSaylorExams}
           />
           <Slider
             label="CLEP exams"
-            hint={`$${stats.clepExam} per exam (as of July 2025) plus ~$25 test-center admin fee — Modern States vouchers can make these free`}
+            hint={`$${pricing.clepExam} per exam plus roughly $${pricing.clepAdminFee} in test-center admin fees. Modern States vouchers can make these free.`}
             value={clepExams}
             min={0}
-            max={6}
+            max={8}
             format={(v) => `${v}`}
             onChange={setClepExams}
           />
           <Slider
             label="WGU terms"
-            hint={`$${stats.wguTermTuition.toLocaleString()} tuition + $${stats.wguResourceFee} resource fee per 6-month term (B.S. Software Engineering rate) — heavy transfer credit makes 1–2 terms realistic`}
+            hint={`$${program.tuitionPerTerm.toLocaleString()} tuition plus a $${program.resourceFeePerTerm} resource fee per six-month term. ${wguCUs} CUs remain at WGU, so roughly ${plural(suggestedTerms, "term")} at an accelerated pace.`}
             value={wguTerms}
             min={1}
-            max={4}
+            max={6}
             format={(v) => `${v}`}
             onChange={setWguTerms}
           />
           <Slider
-            label="Expected Pell Grant / year"
-            hint="Up to $7,395/award year (2026–27 max) if eligible — WGU disburses half per 6-month term, and it applies to WGU tuition only"
+            label="Expected Pell Grant per year"
+            hint={`Up to $${pricing.pellMax.toLocaleString()} per award year (2026–27 maximum) if eligible. WGU disburses half per six-month term, and it applies to WGU tuition only.`}
             value={pellPerYear}
             min={0}
-            max={7395}
-            step={500}
-            format={fmt}
+            max={pricing.pellMax}
+            step={185}
+            format={money}
             onChange={setPellPerYear}
           />
         </div>
 
-        {/* Results */}
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-stone-200 bg-white p-6 dark:border-stone-800 dark:bg-stone-900">
-            <h2 className="text-sm font-bold tracking-wide text-stone-400 uppercase">Breakdown</h2>
-            <ul className="mt-3 divide-y divide-stone-100 dark:divide-stone-800">
-              {rows.map((r) => (
-                <li key={r.label} className="flex justify-between py-2 text-sm">
-                  <span className="text-stone-600 dark:text-stone-300">{r.label}</span>
-                  <span className="font-semibold">{fmt(r.value)}</span>
-                </li>
-              ))}
-              {pellApplied > 0 && (
-                <li className="flex justify-between py-2 text-sm text-emerald-600 dark:text-emerald-400">
-                  <span>Pell Grant applied</span>
-                  <span className="font-semibold">−{fmt(pellApplied)}</span>
-                </li>
-              )}
-            </ul>
-          </div>
+        <div>
+          <p className="label border-b border-ink pb-2">Out-of-pocket total</p>
+          <p className="stat mt-5">{money(net)}</p>
+          <p className="mt-2 text-sm text-muted">
+            {`for ${program.shortName}, over roughly ${plural(monthsTotal, "month")} of study`}
+          </p>
 
-          <div className="rounded-2xl bg-indigo-600 p-6 text-white">
-            <div className="text-sm font-semibold text-indigo-200 uppercase">
-              Estimated out-of-pocket total
-            </div>
-            <div className="mt-1 text-5xl font-black">{fmt(net)}</div>
-            <div className="mt-2 text-sm text-indigo-100">
-              over roughly {monthsTotal} months of study
-            </div>
-          </div>
+          <ul className="mt-8">
+            {rows.map((r) => (
+              <li key={r.label} className="flex justify-between gap-4 border-t border-rule py-2.5">
+                <span className="text-sm text-muted">{r.label}</span>
+                <span className="num text-sm font-semibold whitespace-nowrap">{money(r.value)}</span>
+              </li>
+            ))}
+            {pellApplied > 0 && (
+              <li className="flex justify-between gap-4 border-t border-rule py-2.5 text-accent">
+                <span className="text-sm">Pell Grant applied</span>
+                <span className="num text-sm font-semibold">−{money(pellApplied)}</span>
+              </li>
+            )}
+            <li className="flex justify-between gap-4 border-t-2 border-ink py-2.5">
+              <span className="label text-ink">Total</span>
+              <span className="num text-sm font-bold">{money(net)}</span>
+            </li>
+          </ul>
 
-          <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-6 dark:border-emerald-800 dark:bg-emerald-950/40">
-            <div className="text-sm font-semibold text-emerald-700 uppercase dark:text-emerald-300">
-              vs. a typical 4-year path
-            </div>
-            <p className="mt-2 text-sm text-emerald-800 dark:text-emerald-200">
-              Average in-state public university tuition runs ~{fmt(traditionalCost)} over four
-              years. This plan saves an estimated{" "}
-              <strong>{fmt(Math.max(traditionalCost - net, 0))}</strong> — and 2–3 years of your
-              life.
+          <div className="mt-10 border-t border-rule pt-4">
+            <p className="label">Versus a four-year path</p>
+            <p className="mt-2 max-w-[60ch] text-sm text-muted">
+              {`Average published in-state tuition and fees at a public four-year university run about ${money(pricing.traditionalFourYear / 4)} a year — roughly ${money(pricing.traditionalFourYear)} over four years. This plan saves an estimated ${money(Math.max(pricing.traditionalFourYear - net, 0))} and two to three years of your life.`}
             </p>
           </div>
 
-          <p className="text-xs text-stone-400">
-            Estimates only. Verify current prices with each provider — tuition and subscription
-            rates change every year.
+          <p className="mt-8 text-xs text-faint">
+            Estimates only. Tuition, subscription rates and transfer pathways change every year —
+            verify current prices with each provider before committing.
           </p>
         </div>
       </div>

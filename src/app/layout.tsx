@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import { ProgramProvider } from "@/components/ProgramProvider";
+import ProgramBar from "@/components/ProgramBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,19 +32,26 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Nav />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">{children}</main>
-        <footer className="border-t border-stone-200 py-8 dark:border-stone-800">
-          <div className="mx-auto max-w-6xl px-4 text-sm text-stone-500 dark:text-stone-400">
-            <p className="mb-2 font-medium">
-              Degree SpeedRun is an independent planning guide — not affiliated with WGU, Sophia
-              Learning, Study.com, Saylor Academy, or the College Board.
-            </p>
-            <p>
-              Prices, transfer policies, and course lists change. Always confirm against the official
-              WGU transfer pathway for your program and an enrollment counselor before paying for
-              anything.
-            </p>
+        <ProgramProvider>
+          <Nav />
+          <ProgramBar />
+          <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">{children}</main>
+        </ProgramProvider>
+        <footer className="mt-10 border-t border-ink">
+          <div className="mx-auto grid max-w-6xl gap-x-10 gap-y-4 px-4 py-10 md:grid-cols-12">
+            <p className="label md:col-span-3">Disclaimer</p>
+            <div className="md:col-span-9">
+              <p className="max-w-[68ch] font-medium">
+                Degree SpeedRun is an independent planning guide. It is not affiliated with WGU,
+                Sophia Learning, Study.com, Saylor, or the College Board.
+              </p>
+              <p className="mt-3 max-w-[68ch] text-sm text-muted">
+                Prices, transfer policies and course lists change. Always confirm against the
+                official WGU transfer pathway for your program, and with an enrollment counselor,
+                before paying for anything.
+              </p>
+              <p className="label mt-5">Figures verified July 2026</p>
+            </div>
           </div>
         </footer>
       </body>

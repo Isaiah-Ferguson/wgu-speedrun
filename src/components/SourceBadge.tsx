@@ -1,25 +1,23 @@
-import { SourceId } from "@/data/plan";
-
-const styles: Record<SourceId, string> = {
-  sophia: "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300",
-  studycom: "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300",
-  saylor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
-  clep: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
-  wgu: "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300",
-};
+import type { SourceId } from "@/data/types";
 
 const labels: Record<SourceId, string> = {
-  sophia: "Sophia",
-  studycom: "Study.com",
-  saylor: "Saylor",
+  sophia: "SOPHIA",
+  studycom: "STUDY.COM",
+  saylor: "SAYLOR",
   clep: "CLEP",
   wgu: "WGU",
 };
 
+/**
+ * Sources are told apart by name in mono, not by hue — the palette keeps its
+ * single accent so amber can mean "policy warning" and nothing else.
+ */
 export default function SourceBadge({ source }: { source: SourceId }) {
+  const isWgu = source === "wgu";
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap ${styles[source]}`}
+      className={`label shrink-0 whitespace-nowrap ${isWgu ? "text-accent" : "text-faint"}`}
+      style={{ letterSpacing: "0.12em" }}
     >
       {labels[source]}
     </span>

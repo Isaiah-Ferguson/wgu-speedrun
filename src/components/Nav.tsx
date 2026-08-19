@@ -3,13 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { pad2 } from "@/lib/format";
 
 const links = [
   { href: "/", label: "Overview" },
+  { href: "/programs", label: "Programs" },
   { href: "/roadmap", label: "Roadmap" },
-  { href: "/courses", label: "Course Tracker" },
-  { href: "/calculator", label: "Cost Calculator" },
-  { href: "/financial-aid", label: "Financial Aid" },
+  { href: "/courses", label: "Tracker" },
+  { href: "/calculator", label: "Calculator" },
+  { href: "/financial-aid", label: "Aid" },
   { href: "/faq", label: "FAQ" },
 ];
 
@@ -18,58 +20,64 @@ export default function Nav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-stone-200 bg-white/80 backdrop-blur dark:border-stone-800 dark:bg-stone-950/80">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-sm font-black text-white">
-            SR
-          </span>
-          <span className="text-lg">
-            Degree<span className="text-indigo-600 dark:text-indigo-400">SpeedRun</span>
+    <header className="sticky top-0 z-50 border-b border-rule bg-paper/90 backdrop-blur">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+        <Link href="/" className="flex items-baseline gap-2">
+          <span className="text-base font-extrabold tracking-tight">
+            Degree<span className="text-accent">SpeedRun</span>
           </span>
         </Link>
 
-        <div className="hidden items-center gap-1 md:flex">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                pathname === l.href
-                  ? "bg-indigo-600 text-white"
-                  : "text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-stone-800"
-              }`}
-            >
-              {l.label}
-            </Link>
-          ))}
+        <div className="hidden items-center gap-5 md:flex">
+          {links.map((l, i) => {
+            const active = pathname === l.href;
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                aria-current={active ? "page" : undefined}
+                className="group flex items-baseline gap-1.5"
+              >
+                <span className="label" style={{ letterSpacing: "0.1em" }}>
+                  {pad2(i + 1)}
+                </span>
+                <span
+                  className={`text-sm font-semibold transition-colors ${
+                    active
+                      ? "text-accent underline decoration-accent decoration-2 underline-offset-[6px]"
+                      : "text-ink/70 group-hover:text-ink"
+                  }`}
+                >
+                  {l.label}
+                </span>
+              </Link>
+            );
+          })}
         </div>
 
         <button
           onClick={() => setOpen(!open)}
-          className="rounded-lg p-2 text-stone-600 hover:bg-stone-100 md:hidden dark:text-stone-300 dark:hover:bg-stone-800"
+          className="label px-1 py-2 md:hidden"
+          aria-expanded={open}
           aria-label="Toggle menu"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            {open ? <path d="M18 6 6 18M6 6l12 12" /> : <path d="M3 6h18M3 12h18M3 18h18" />}
-          </svg>
+          {open ? "CLOSE" : "MENU"}
         </button>
       </nav>
 
       {open && (
-        <div className="border-t border-stone-200 px-4 py-2 md:hidden dark:border-stone-800">
-          {links.map((l) => (
+        <div className="border-t border-rule px-4 py-2 md:hidden">
+          {links.map((l, i) => (
             <Link
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className={`block rounded-lg px-3 py-2 text-sm font-medium ${
-                pathname === l.href
-                  ? "bg-indigo-600 text-white"
-                  : "text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-stone-800"
+              className={`flex items-baseline gap-2 border-b border-rule py-2.5 last:border-0 ${
+                pathname === l.href ? "text-accent" : ""
               }`}
             >
-              {l.label}
+              <span className="label">{pad2(i + 1)}</span>
+              <span className="text-sm font-semibold">{l.label}</span>
             </Link>
           ))}
         </div>
