@@ -9,9 +9,13 @@ import Section from "@/components/Section";
 import ProgramWarnings from "@/components/ProgramWarnings";
 import { money, pad2, plural } from "@/lib/format";
 import { programStats } from "@/lib/program-stats";
+import { usePace } from "@/components/PaceProvider";
+import { humanDuration } from "@/lib/pace";
+import PaceControl from "@/components/PaceControl";
 
 export default function HomeContent() {
   const { program } = useProgram();
+  const { pace } = usePace();
   const {
     transferCUs,
     advancedStandingCUs,
@@ -19,7 +23,12 @@ export default function HomeContent() {
     terms: termsNeeded,
     wguCost,
     hasCourseData,
-  } = programStats(program);
+    totalWeeks,
+    transferWeeks,
+    wguWeeks,
+    cusPerTerm: cusTerm,
+    hoursPerWeek: hrsWeek,
+  } = programStats(program, pace);
 
   return (
     <div>
@@ -66,18 +75,15 @@ export default function HomeContent() {
           <>
             <dl className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-4">
               {[
-                { v: `${program.totalCUs}`, k: "total competency units" },
+                { v: humanDuration(totalWeeks), k: "start to graduation" },
                 {
                   v: `${transferCUs + advancedStandingCUs}`,
                   k: advancedStandingCUs
-                    ? `CUs before WGU (incl. ${advancedStandingCUs} for your RN licence)`
-                    : "CUs transferable before WGU",
+                    ? `of ${program.totalCUs} CUs before WGU (incl. ${advancedStandingCUs} for your RN licence)`
+                    : `of ${program.totalCUs} CUs banked before WGU`,
                 },
-                { v: `${wguCUs}`, k: "CUs completed at WGU" },
-                {
-                  v: money(wguCost),
-                  k: `WGU tuition · ${plural(termsNeeded, "term")}`,
-                },
+                { v: `${wguCUs}`, k: `CUs at WGU · ${plural(termsNeeded, "term")}` },
+                { v: money(wguCost), k: "WGU tuition" },
               ].map((s) => (
                 <div key={s.k}>
                   <dd className="stat">{s.v}</dd>
@@ -85,11 +91,17 @@ export default function HomeContent() {
                 </div>
               ))}
             </dl>
-            <p className="mt-8 max-w-[68ch] text-sm text-muted">
-              Assumes an accelerated pace of roughly 30 CUs per six-month term. Outside-provider
-              subscriptions are extra, but usually total under $1,000. Tuition is the rate for terms
-              beginning on or after 1 January 2026.
-            </p>
+            <div className="mt-8 grid gap-4 border-t border-rule pt-4 sm:grid-cols-[1fr_auto] sm:items-start">
+              <p className="max-w-[68ch] text-sm text-muted">
+                {`At ${pace.hoursPerDay} hours a day, ${pace.daysPerWeek} days a week — ${hrsWeek} hours weekly, about ${cusTerm} CUs per six-month term. That is roughly ${humanDuration(transferWeeks)} of transfer credit before you enrol, then ${humanDuration(wguWeeks)} at WGU. Outside-provider subscriptions are extra but usually total under $1,000, and tuition is the rate for terms beginning on or after 1 January 2026.`}
+              </p>
+              <div className="sm:w-44">
+                <p className="label">Change pace</p>
+                <div className="mt-1">
+                  <PaceControl />
+                </div>
+              </div>
+            </div>
           </>
         ) : (
           <div className="border border-warn-rule bg-warn-bg p-5 text-sm text-warn">

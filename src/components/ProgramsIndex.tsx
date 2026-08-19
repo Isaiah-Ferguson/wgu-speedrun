@@ -8,6 +8,9 @@ import { useProgram } from "@/components/ProgramProvider";
 import { pricing } from "@/data/plan";
 import { money, pad2, plural } from "@/lib/format";
 import { programStats } from "@/lib/program-stats";
+import { usePace } from "@/components/PaceProvider";
+import PaceControl from "@/components/PaceControl";
+import { humanDuration } from "@/lib/pace";
 import ProgramWarnings from "@/components/ProgramWarnings";
 
 const collegeOrder = [
@@ -21,6 +24,7 @@ const shortCollege = (c: string) => c.replace("School of ", "").replace("Leavitt
 
 export default function ProgramsIndex() {
   const { program: selected, setProgramId } = useProgram();
+  const { pace } = usePace();
   const router = useRouter();
   const [view, setView] = useState<"list" | "table">("list");
   const [college, setCollege] = useState<string>("all");
@@ -60,6 +64,16 @@ export default function ProgramsIndex() {
         </p>
       </header>
 
+      <div className="flex flex-wrap items-end justify-between gap-4 border-t border-rule pt-4 pb-2">
+        <p className="max-w-[60ch] text-sm text-muted">
+          {`Timelines below assume ${pace.hoursPerDay} hours a day, ${pace.daysPerWeek} days a week — a full-time speed run. Change it and every figure updates.`}
+        </p>
+        <div className="w-44">
+          <p className="label">Pace</p>
+          <div className="mt-1"><PaceControl /></div>
+        </div>
+      </div>
+
       <div className="flex flex-wrap items-center gap-2 border-y border-rule py-3">
         <button onClick={() => setCollege("all")} className={filterBtn(college === "all")}>
           All
@@ -80,7 +94,7 @@ export default function ProgramsIndex() {
       {view === "list" ? (
         <ul>
           {visible.map((p) => {
-            const s = programStats(p);
+            const s = programStats(p, pace);
             const isSelected = p.id === selected.id;
             return (
               <li
@@ -118,8 +132,11 @@ export default function ProgramsIndex() {
                       </div>
                     ))}
                   </dl>
-                  <p className="num mt-4 text-sm text-muted">
-                    {`Finish ${plural(s.terms, "WGU term")} · ${s.wguCUs} CU at WGU · est. ${money(s.wguCost)}`}
+                  <p className="num mt-4 text-sm">
+                    <span className="font-semibold text-accent">{humanDuration(s.totalWeeks)}</span>
+                    <span className="text-muted">
+                      {` start to finish · ${plural(s.terms, "WGU term")} · ${s.wguCUs} CU at WGU · est. ${money(s.wguCost)}`}
+                    </span>
                   </p>
                   {p.certifications.length > 0 && (
                     <p className="label mt-3 text-ink/70">
@@ -164,6 +181,7 @@ export default function ProgramsIndex() {
                   "At WGU",
                   "Per term",
                   "Terms",
+                  "Finish in",
                   "Est. WGU cost",
                   "Caveats",
                 ].map((h) => (
@@ -175,7 +193,7 @@ export default function ProgramsIndex() {
             </thead>
             <tbody>
               {visible.map((p) => {
-                const s = programStats(p);
+                const s = programStats(p, pace);
                 return (
                   <tr
                     key={p.id}
@@ -195,6 +213,9 @@ export default function ProgramsIndex() {
                     <td className="num py-3 pr-4">{s.wguCUs}</td>
                     <td className="num py-3 pr-4 whitespace-nowrap">{money(p.tuitionPerTerm)}</td>
                     <td className="num py-3 pr-4">{s.terms}</td>
+                    <td className="num py-3 pr-4 whitespace-nowrap text-accent">
+                      {humanDuration(s.totalWeeks)}
+                    </td>
                     <td className="num py-3 pr-4 font-semibold whitespace-nowrap">
                       {money(s.wguCost)}
                     </td>
@@ -227,7 +248,7 @@ export default function ProgramsIndex() {
             Saylor and CLEP pathways.
           </p>
           <p className="mt-3">
-            {`Estimated terms assume roughly 30 CUs completed per six-month term — an aggressive but documented accelerator pace. "Transfer in" counts only courses with a named, currently published articulation, so treat it as a floor rather than a cap. Tuition is the rate for terms beginning on or after 1 January 2026 and excludes the $${pricing.wguAppFee} application fee (routinely waived) and outside-provider subscriptions. Verify every figure on WGU's site before enrolling.`}
+            {`Durations are derived from your pace setting (${pace.hoursPerDay} hrs/day x ${pace.daysPerWeek} days) at roughly 26 focused hours per competency unit — aggressive, but consistent with documented accelerator results. Terms are what you pay for; WGU lets you graduate as soon as the last course is passed, so "finish in" can land mid-term. "Transfer in" counts only courses with a named, currently published articulation, so treat it as a floor rather than a cap. Tuition is the rate for terms beginning on or after 1 January 2026 and excludes the $${pricing.wguAppFee} application fee (routinely waived) and outside-provider subscriptions. Verify every figure on WGU's site before enrolling.`}
           </p>
         </div>
       </div>

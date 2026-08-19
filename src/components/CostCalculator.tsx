@@ -5,6 +5,8 @@ import { pricing } from "@/data/plan";
 import { useProgram } from "@/components/ProgramProvider";
 import { money, plural } from "@/lib/format";
 import { programStats } from "@/lib/program-stats";
+import { usePace } from "@/components/PaceProvider";
+import { humanDuration } from "@/lib/pace";
 import type { Program } from "@/data/types";
 
 function Slider({
@@ -49,23 +51,29 @@ function Slider({
 
 export default function CostCalculator() {
   const { program } = useProgram();
+  const { pace } = usePace();
   // Remounting on program change reseeds every slider from that program's own
   // numbers, without an effect that fights the user's edits.
-  return <Calculator key={program.id} program={program} />;
+  return <Calculator key={`${program.id}:${pace.hoursPerDay}x${pace.daysPerWeek}`} program={program} />;
 }
 
 function Calculator({ program }: { program: Program }) {
+  const { pace } = usePace();
   const sophiaCount = program.transferCourses.filter((c) => c.source === "sophia").length;
   const studycomCount = program.transferCourses.filter((c) => c.source === "studycom").length;
   const saylorCount = program.transferCourses.filter((c) => c.source === "saylor").length;
   const clepCount = program.transferCourses.filter((c) => c.source === "clep").length;
-  const { wguCUs, terms: suggestedTerms, hasCourseData } = programStats(program);
+  const { wguCUs, terms: suggestedTerms, hasCourseData, totalWeeks, transferWeeks } =
+    programStats(program, pace);
 
+  // Subscription months follow the paced transfer phase, split by course share.
+  const transferMonths = Math.max(1, Math.ceil(transferWeeks / 4.345));
+  const transferTotal = sophiaCount + studycomCount || 1;
   const [sophiaMonths, setSophiaMonths] = useState(
-    sophiaCount ? Math.max(1, Math.ceil(sophiaCount / 6)) : 0,
+    sophiaCount ? Math.max(1, Math.round((transferMonths * sophiaCount) / transferTotal)) : 0,
   );
   const [studycomMonths, setStudycomMonths] = useState(
-    studycomCount ? Math.max(1, Math.ceil(studycomCount / 5)) : 0,
+    studycomCount ? Math.max(1, Math.round((transferMonths * studycomCount) / transferTotal)) : 0,
   );
   const [saylorExams, setSaylorExams] = useState(saylorCount);
   const [clepExams, setClepExams] = useState(clepCount);
@@ -82,7 +90,6 @@ function Calculator({ program }: { program: Program }) {
   // Pell disburses half the annual award per six-month term (two terms = one academic year).
   const pellApplied = Math.min((pellPerYear / 2) * wguTerms, wguCost);
   const net = gross - pellApplied;
-  const monthsTotal = sophiaMonths + studycomMonths + wguTerms * 6;
 
   const rows = [
     { label: `Sophia · ${plural(sophiaMonths, "month")}`, value: sophiaCost },
@@ -172,7 +179,7 @@ function Calculator({ program }: { program: Program }) {
           <p className="label border-b border-ink pb-2">Out-of-pocket total</p>
           <p className="stat mt-5">{money(net)}</p>
           <p className="mt-2 text-sm text-muted">
-            {`for ${program.shortName}, over roughly ${plural(monthsTotal, "month")} of study`}
+            {`for ${program.shortName} · ${humanDuration(totalWeeks)} at ${pace.hoursPerDay} hrs/day, ${pace.daysPerWeek} days a week`}
           </p>
 
           <ul className="mt-8">

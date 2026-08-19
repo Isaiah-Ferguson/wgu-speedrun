@@ -4,6 +4,7 @@ import "./globals.css";
 import Nav from "@/components/Nav";
 import { ProgramProvider } from "@/components/ProgramProvider";
 import ProgramBar from "@/components/ProgramBar";
+import { PaceProvider } from "@/components/PaceProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,9 +34,11 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ProgramProvider>
+         <PaceProvider>
           <Nav />
           <ProgramBar />
           <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">{children}</main>
+         </PaceProvider>
         </ProgramProvider>
         <footer className="mt-10 border-t border-ink">
           <div className="mx-auto grid max-w-6xl gap-x-10 gap-y-4 px-4 py-10 md:grid-cols-12">

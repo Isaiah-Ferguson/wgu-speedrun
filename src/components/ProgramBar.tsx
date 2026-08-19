@@ -4,13 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ProgramPicker from "@/components/ProgramPicker";
 import { useProgram } from "@/components/ProgramProvider";
-import { topWarning } from "@/lib/program-stats";
+import { programStats, topWarning } from "@/lib/program-stats";
+import PaceControl from "@/components/PaceControl";
+import { usePace } from "@/components/PaceProvider";
+import { humanDuration } from "@/lib/pace";
 
 /** Slim rail under the nav making it obvious every page is scoped to one program. */
 export default function ProgramBar() {
   const { program } = useProgram();
   const pathname = usePathname();
   const warning = topWarning(program);
+  const { pace } = usePace();
+  const stats = programStats(program, pace);
 
   // The programs index is its own picker — no need to double up.
   if (pathname === "/programs") return null;
@@ -25,7 +30,11 @@ export default function ProgramBar() {
         {/* On phones this wraps to its own row so the program name keeps its width. */}
         <div className="flex w-full items-center gap-4 sm:w-auto">
           <span className="num hidden text-xs text-muted sm:inline">
-            {`${program.totalCUs} CU · $${program.tuitionPerTerm.toLocaleString()}/term`}
+            {`${program.totalCUs} CU · ${humanDuration(stats.totalWeeks)}`}
+          </span>
+          <span className="hidden items-center gap-2 md:flex">
+            <span className="label">Pace</span>
+            <PaceControl compact />
           </span>
           {warning && (
             <span className="label border border-warn-rule bg-warn-bg px-2 py-0.5 text-warn">

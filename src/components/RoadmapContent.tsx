@@ -6,13 +6,39 @@ import { useProgram } from "@/components/ProgramProvider";
 import SourceBadge from "@/components/SourceBadge";
 import { money, pad2, plural } from "@/lib/format";
 import { programStats } from "@/lib/program-stats";
+import { usePace } from "@/components/PaceProvider";
+import { HOURS_PER_TRANSFER_CREDIT, humanDuration, weeksForHours } from "@/lib/pace";
 import ProgramWarnings from "@/components/ProgramWarnings";
 import type { SourceId } from "@/data/types";
 
 export default function RoadmapContent() {
   const { program } = useProgram();
-  const { transferCUs, advancedStandingCUs, wguCUs, terms: wguTerms, wguCost } =
-    programStats(program);
+  const { pace } = usePace();
+  const {
+    transferCUs,
+    advancedStandingCUs,
+    wguCUs,
+    terms: wguTerms,
+    wguCost,
+    totalWeeks,
+    wguWeeks,
+    cusPerTerm: cusTerm,
+  } = programStats(program, pace);
+
+  // Phase durations come from the same pace model as everything else.
+  const weeksFor = (list: { credits: number; source?: string }[]) =>
+    weeksForHours(
+      list.reduce(
+        (sum, c) =>
+          sum +
+          c.credits *
+            (c.source
+              ? (HOURS_PER_TRANSFER_CREDIT[c.source as keyof typeof HOURS_PER_TRANSFER_CREDIT] ?? 9)
+              : 26),
+        0,
+      ),
+      pace,
+    );
 
   const sophia = program.transferCourses.filter((c) => c.source === "sophia");
   const others = program.transferCourses.filter((c) => c.source !== "sophia");
@@ -25,9 +51,7 @@ export default function RoadmapContent() {
     {
       n: 1,
       title: "Clear the gen eds on Sophia",
-      time: sophia.length
-        ? `${Math.max(1, Math.ceil(sophia.length / 5))}–${Math.max(2, Math.ceil(sophia.length / 2))} months`
-        : "—",
+      time: sophia.length ? humanDuration(weeksFor(sophia)) : "—",
       cost: sophia.length ? `${money(pricing.sophiaMonthly)}–$299` : "$0",
       description:
         "Before you even apply to WGU, grind through every general education course Sophia covers for your program. At $99 a month with unlimited courses (two active at a time) and zero proctored exams, a focused student can clear several courses a month. These are the cheapest credits you will ever earn.",
@@ -42,7 +66,7 @@ export default function RoadmapContent() {
     {
       n: 2,
       title: "Knock out the rest with Study.com, Saylor and CLEP",
-      time: others.length ? "1–3 months" : "—",
+      time: others.length ? humanDuration(weeksFor(others)) : "—",
       cost: others.length ? "$100–$700" : "$0",
       description:
         "Fill the gaps Sophia doesn't cover. Study.com finals are now open-book and unlimited per month, so you can batch courses into one subscription month. Saylor is free with $5 exams where its ACE recommendations are still current, and a single CLEP exam can be worth six credits.",
@@ -57,7 +81,7 @@ export default function RoadmapContent() {
     {
       n: 3,
       title: "Sprint the rest at WGU",
-      time: `${plural(wguTerms, "six-month term")}`,
+      time: `${humanDuration(wguWeeks)} · ${plural(wguTerms, "term")} billed`,
       cost: money(wguCost),
       creditsOverride: wguCUs,
       description:
@@ -80,7 +104,7 @@ export default function RoadmapContent() {
         <p className="mt-6 text-xl font-bold tracking-tight text-accent">{program.name}</p>
         <p className="mt-4 max-w-[68ch] text-lg text-muted">
           {hasCourseData
-            ? `Cheapest credits first, WGU last. ${transferCUs + advancedStandingCUs} of ${program.totalCUs} CUs can be banked before you ever pay WGU tuition${advancedStandingCUs ? ` (including ${advancedStandingCUs} granted automatically for your RN licence)` : ""} — the remaining ${wguCUs} finish in about ${plural(wguTerms, "flat-rate term")}.`
+            ? `Cheapest credits first, WGU last. ${transferCUs + advancedStandingCUs} of ${program.totalCUs} CUs can be banked before you ever pay WGU tuition${advancedStandingCUs ? ` (including ${advancedStandingCUs} granted automatically for your RN licence)` : ""} — the remaining ${wguCUs} finish in about ${plural(wguTerms, "flat-rate term")}. At ${pace.hoursPerDay} hours a day, ${pace.daysPerWeek} days a week (roughly ${cusTerm} CUs a term), that is ${humanDuration(totalWeeks)} start to graduation.`
             : `Cheapest credits first, WGU last. The course-by-course transfer map for this program hasn't been published here yet — the phases below still describe the strategy, and the platform playbook applies to every WGU degree.`}
         </p>
       </header>

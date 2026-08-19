@@ -52,6 +52,13 @@ export interface Program {
   /** Credit granted automatically for an existing licence (RN-to-BSN). */
   advancedStandingCUs?: number;
 
+  /**
+   * Fewest terms the program can be finished in regardless of study pace,
+   * where something external sets the floor — a full-time student-teaching
+   * term, or clinical placements that must be arranged months ahead.
+   */
+  minTerms?: number;
+
   sources: string[];
 }
 
