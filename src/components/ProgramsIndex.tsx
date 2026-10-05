@@ -60,7 +60,7 @@ export default function ProgramsIndex() {
         <p className="label">/02 Programs</p>
         <h1 className="display mt-5 max-w-[14ch]">Choose your degree.</h1>
         <p className="mt-7 max-w-[64ch] text-lg text-muted">
-          {`WGU's ${plural(programs.length, "most popular bachelor's program")}, ranked by degrees actually awarded. Pick one and every page — roadmap, tracker, calculator — rebuilds around it.`}
+          {`WGU's ten most popular bachelor's programs, ranked by degrees actually awarded, plus AI Engineering — too new to be ranked, but worth planning. Pick one and every page — roadmap, tracker, calculator — rebuilds around it.`}
         </p>
       </header>
 
@@ -105,8 +105,15 @@ export default function ProgramsIndex() {
               >
                 <div className="md:col-span-4">
                   <div className="flex items-baseline gap-3">
-                    <span className="label" title="Rank by WGU bachelor's degrees awarded">
-                      {pad2(programs.indexOf(p) + 1)}
+                    <span
+                      className={`label ${p.unranked ? "text-accent" : ""}`}
+                      title={
+                        p.unranked
+                          ? "Too new to appear in completions data"
+                          : "Rank by WGU bachelor's degrees awarded"
+                      }
+                    >
+                      {p.unranked ? "NEW" : pad2(programs.indexOf(p) + 1)}
                     </span>
                     <span className="label">{shortCollege(p.college)}</span>
                     {isSelected && <span className="label text-accent">Selected</span>}
@@ -242,7 +249,8 @@ export default function ProgramsIndex() {
         <p className="label md:col-span-3">Method</p>
         <div className="max-w-[68ch] text-sm text-muted md:col-span-9">
           <p>
-            Programs are ranked by WGU bachelor&apos;s degrees awarded (IPEDS completions, 2023–24).
+            Programs are ranked by WGU bachelor&apos;s degrees awarded (IPEDS completions, 2023–24);
+            AI Engineering is marked NEW because it launched too recently to appear in that data.
             Competency units, tuition and course lists come from WGU&apos;s official program pages
             and program guidebooks; transferable courses come from the current Sophia, Study.com,
             Saylor and CLEP pathways.

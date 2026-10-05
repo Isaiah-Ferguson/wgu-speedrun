@@ -4,9 +4,11 @@
     {
       "name": "wgu-speedrun-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 3000,
-      "cwd": "/Users/isaiahkeithferguson/Desktop/Bach-Speed-Run/wgu-speedrun"
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "port": 3000
     }
   ]
 }

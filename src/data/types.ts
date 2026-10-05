@@ -59,6 +59,12 @@ export interface Program {
    */
   minTerms?: number;
 
+  /**
+   * True for a program too new to appear in IPEDS completions data, so the
+   * numbered popularity ranking does not silently imply a rank it never earned.
+   */
+  unranked?: boolean;
+
   sources: string[];
 }
 

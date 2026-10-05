@@ -4,14 +4,16 @@ import type { Program } from "./types";
 // guidebooks, plus the current Sophia / Study.com / Saylor / CLEP transfer
 // pathways, and cross-checked by separate verification passes. July 2026.
 //
-// Programs are ordered by WGU bachelor's completions (IPEDS 2023-24).
+// Programs 1-10 are ordered by WGU bachelor's completions (IPEDS 2023-24).
+// AI Engineering is appended last and flagged `unranked`: it launched too
+// recently to appear in completions data, so it has no earned rank.
 //
 // Two rules govern every figure here:
 //   1. Since March 2026 WGU accepts outside credit for general-education and
 //      lower-division requirements only. Upper-division coursework must be
 //      completed at WGU, and at least 25% of any degree is earned in residency.
-//   2. Tuition is the rate for terms beginning on or after 1 January 2026.
-//      WGU has published increases for later terms — always re-check.
+//   2. Tuition is the published rate for terms beginning on or after
+//      1 October 2026. Re-check before enrolling; WGU reprices periodically.
 
 export const programs: Program[] = [
   {
@@ -218,7 +220,7 @@ export const programs: Program[] = [
     "description": "WGU's B.S. Business Management is a 36-course, 110-CU competency-based degree covering management, HR, marketing, accounting, finance, economics, and operations, ending in a written business-plan capstone. It is the least gated bachelor's WGU offers — no clinical hours, no practicum, no student teaching, no state licensure, and no cohort-scheduled courses. Because WGU publishes a live per-program transfer pathway for Sophia, Study.com, and Saylor, you can pre-clear roughly two-thirds of the degree for a few hundred dollars and finish the rest in a single six-month term.",
     "totalCUs": 110,
     "courseCount": 36,
-    "tuitionPerTerm": 3830,
+    "tuitionPerTerm": 3850,
     "resourceFeePerTerm": 200,
     "certifications": [],
     "careers": [
@@ -1126,7 +1128,7 @@ export const programs: Program[] = [
     "description": "WGU's B.S. in Accounting is a 121-CU, 40-course ACBSP-accredited program that pairs a broad business core with a nine-course technical accounting sequence (Financial Accounting through Intermediate Accounting III, Auditing, Taxation, and AIS). It is one of the most transfer-friendly business degrees at WGU on paper — 75 of 121 CUs have official outside articulations — but every course with the word \"Accounting\" in it is explicitly designated non-transferable and must be earned in residency. The degree is designed as step one toward the CPA, not as a CPA-qualifying credential on its own.",
     "totalCUs": 121,
     "courseCount": 40,
-    "tuitionPerTerm": 3830,
+    "tuitionPerTerm": 3850,
     "resourceFeePerTerm": 200,
     "certifications": [],
     "careers": [
@@ -2008,7 +2010,7 @@ export const programs: Program[] = [
     "description": "WGU's broadest entry-level IT degree, built for people with little or no technical background who want to break into the field. The 35-course, 110-CU path covers IT fundamentals, networking, security, cloud, data management, Python automation, project management, and AI prompting — and embeds twelve industry certifications (CompTIA A+, Network+, Security+, Project+, Cloud+, AWS Cloud Practitioner, ITIL 4 Foundation, LPI Linux Essentials, plus four CompTIA stackables) whose exam costs are included in tuition. Notably, the current catalog version has no capstone course, which removes the single slowest requirement most WGU bachelor's programs carry.",
     "totalCUs": 110,
     "courseCount": 35,
-    "tuitionPerTerm": 3835,
+    "tuitionPerTerm": 3925,
     "resourceFeePerTerm": 200,
     "certifications": [
       "CompTIA A+",
@@ -2286,7 +2288,7 @@ export const programs: Program[] = [
     "description": "WGU's B.S. in Healthcare Administration is a 110-CU, 34-course business degree aimed at non-clinical management roles in hospitals, clinics, skilled nursing facilities, insurers, and community health organizations. It pairs a standard WGU business core (management, accounting, finance, marketing, operations) with six healthcare-specific courses covering policy and governance, evidence-based administration, emergency planning, and emerging industry trends, capped by a project-based capstone. Because it lives in the School of Business rather than the Leavitt School of Health, it costs $3,830/term instead of the $4,210/term charged for B.S. Health Science, Public Health, or Health Information Management — and unlike those, it carries no clinical or licensure requirement. Students also earn three internal WGU certificates along the way (Healthcare Administration, Strategic Thinking &amp; Innovation, Leadership).",
     "totalCUs": 110,
     "courseCount": 34,
-    "tuitionPerTerm": 3830,
+    "tuitionPerTerm": 3850,
     "resourceFeePerTerm": 200,
     "certifications": [],
     "careers": [
@@ -2874,6 +2876,288 @@ export const programs: Program[] = [
       "https://www.wgu.edu/content/dam/wgu-65-assets/western-governors/documents/program-guides/information-technology/BSSWE_C.pdf",
       "https://study.com/college/western-governors-university/degrees/wgu-bachelor-of-science-in-software-engineering-c-sharp-track.html"
     ]
+  },
+  {
+    "id": "ai-engineering",
+    "name": "AI Engineering – B.S.",
+    "shortName": "AI Engineering",
+    "college": "School of Technology",
+    "url": "https://www.wgu.edu/online-it-degrees/ai-engineering.html",
+    "tagline": "WGU's newest and most mathematical degree — and the one where the speed run is won inside WGU, because almost none of the math transfers in.",
+    "description": "A 121-CU, 40-course program that pairs a genuine engineering mathematics sequence (Calculus I–III, Linear Algebra, two Discrete Mathematics courses and Mathematics of AI) with a C#/.NET engineering track and an applied AI block covering machine learning, deep learning, NLP, computer vision and MLOps. It ends in Applied AI Engineering, a capstone where you design, validate and deploy a production AI system. It is the most expensive technology degree WGU offers per term, and the least forgiving to enter.",
+    "totalCUs": 121,
+    "courseCount": 40,
+    "tuitionPerTerm": 4200,
+    "resourceFeePerTerm": 200,
+    "certifications": [
+      "Microsoft Azure AI Fundamentals (AI-900)",
+      "Mathematics for AI (WGU microcredential)",
+      "Computer Science for AI Engineering (WGU microcredential)",
+      "C# .NET Back-End Developer (WGU microcredential)",
+      "Data Science for AI (WGU microcredential)"
+    ],
+    "careers": [
+      "Machine Learning Engineer",
+      "AI Software Engineer",
+      "Computer Vision Engineer",
+      "Applied AI Developer",
+      "Data Engineer"
+    ],
+    "transferCourses": [
+      {
+        "name": "Introduction to Statistics",
+        "source": "sophia",
+        "credits": 3,
+        "wguEquivalent": "Applied Probability and Statistics (3 CU)",
+        "time": "1 week",
+        "notes": "On the current Sophia WGU College of IT pathway chart."
+      },
+      {
+        "name": "English Composition I",
+        "source": "sophia",
+        "credits": 3,
+        "wguEquivalent": "Composition: Successful Self-Expression (3 CU)",
+        "time": "1 week",
+        "notes": "On the current Sophia WGU College of IT pathway chart."
+      },
+      {
+        "name": "Public Speaking",
+        "source": "sophia",
+        "credits": 3,
+        "wguEquivalent": "Introduction to Communication: Connecting with Others (3 CU)",
+        "time": "1 week",
+        "notes": "On the current Sophia WGU College of IT pathway chart."
+      },
+      {
+        "name": "Introduction to Nutrition",
+        "source": "sophia",
+        "credits": 3,
+        "wguEquivalent": "Health, Fitness, and Wellness (4 CU)",
+        "time": "1 week",
+        "notes": "Clears a 4-CU WGU requirement with a 3-credit Sophia course."
+      },
+      {
+        "name": "Introduction to Relational Databases",
+        "source": "sophia",
+        "credits": 3,
+        "wguEquivalent": "Data Management - Foundations (3 CU)",
+        "time": "1 week",
+        "notes": "On the current Sophia WGU College of IT pathway chart."
+      },
+      {
+        "name": "Introduction to Web Development",
+        "source": "sophia",
+        "credits": 3,
+        "wguEquivalent": "Web Development Foundations (3 CU)",
+        "time": "1 week",
+        "notes": "On the current Sophia WGU College of IT pathway chart."
+      },
+      {
+        "name": "Introduction to Python Programming",
+        "source": "sophia",
+        "credits": 3,
+        "wguEquivalent": "Object Oriented Programming in Python (3 CU)",
+        "time": "1–2 weeks",
+        "notes": "Doubles as evidence toward the programming admission requirement — do this one first."
+      },
+      {
+        "name": "Introduction to Chemistry",
+        "source": "sophia",
+        "credits": 3,
+        "wguEquivalent": "General Chemistry I (3 CU)",
+        "time": "1–2 weeks",
+        "notes": "The lecture half only. General Chemistry I Lab must still be completed at WGU."
+      },
+      {
+        "name": "Philosophy 104: Ethics",
+        "source": "studycom",
+        "credits": 3,
+        "wguEquivalent": "Ethical Engineering (3 CU)",
+        "time": "1–2 weeks",
+        "notes": "Verified on the WGU Study.com pathway for the shared E068 engineering course. Re-confirm before paying."
+      },
+      {
+        "name": "Math 301: Linear Algebra",
+        "source": "studycom",
+        "credits": 3,
+        "wguEquivalent": "Linear Algebra for Engineers (3 CU)",
+        "time": "2 weeks",
+        "notes": "The ONLY part of the engineering maths block with a third-party pathway. Re-confirm it still articulates before paying."
+      }
+    ],
+    "wguCourses": [
+      {
+        "name": "Introduction to AI Engineering",
+        "credits": 3,
+        "category": "core"
+      },
+      {
+        "name": "Calculus I",
+        "credits": 4,
+        "category": "gen-ed",
+        "notes": "No third-party pathway. Sophia's own Calculus I articulates to Applied Algebra, NOT to WGU Calculus — the single most expensive misconception in this plan."
+      },
+      {
+        "name": "Calculus II for Engineers",
+        "credits": 3,
+        "category": "core",
+        "notes": "Sequential: requires Calculus I first."
+      },
+      {
+        "name": "Calculus III for Engineers",
+        "credits": 3,
+        "category": "core",
+        "notes": "Sequential: requires Calculus II first."
+      },
+      {
+        "name": "Applied Discrete Mathematics",
+        "credits": 3,
+        "category": "core"
+      },
+      {
+        "name": "Discrete Mathematics II",
+        "credits": 4,
+        "category": "core"
+      },
+      {
+        "name": "Mathematics of AI",
+        "credits": 3,
+        "category": "upper-division",
+        "notes": "The capstone of the maths block — linear algebra, probability and optimisation applied to model behaviour."
+      },
+      {
+        "name": "Version Control",
+        "credits": 1,
+        "category": "core",
+        "notes": "One CU, often cleared in a day."
+      },
+      {
+        "name": "Network and Security - Foundations",
+        "credits": 3,
+        "category": "core"
+      },
+      {
+        "name": "AI Engineering with C#",
+        "credits": 3,
+        "category": "core"
+      },
+      {
+        "name": "Azure AI Fundamentals",
+        "credits": 3,
+        "category": "core",
+        "notes": "Assessed by Microsoft's AI-900 exam, scheduled and proctored outside WGU."
+      },
+      {
+        "name": "Data Structures and Algorithms I",
+        "credits": 4,
+        "category": "core"
+      },
+      {
+        "name": "Data Structures and Algorithms II",
+        "credits": 4,
+        "category": "core",
+        "notes": "Sequential: requires DSA I."
+      },
+      {
+        "name": "Big Data Foundations",
+        "credits": 4,
+        "category": "core"
+      },
+      {
+        "name": "Introduction to Systems Thinking and Applications",
+        "credits": 3,
+        "category": "core"
+      },
+      {
+        "name": "Advanced C#",
+        "credits": 3,
+        "category": "core"
+      },
+      {
+        "name": "Computer Architecture",
+        "credits": 3,
+        "category": "core"
+      },
+      {
+        "name": "Fundamentals of Information Security",
+        "credits": 3,
+        "category": "core"
+      },
+      {
+        "name": "C# .NET Back End Development",
+        "credits": 3,
+        "category": "upper-division"
+      },
+      {
+        "name": "Machine Learning",
+        "credits": 3,
+        "category": "upper-division"
+      },
+      {
+        "name": "Computer Systems for AI",
+        "credits": 3,
+        "category": "upper-division",
+        "notes": "CPUs, GPUs, TPUs and distributed systems for training and inference."
+      },
+      {
+        "name": "Deep Learning for AI Engineers",
+        "credits": 3,
+        "category": "upper-division"
+      },
+      {
+        "name": "Data and Information Governance",
+        "credits": 2,
+        "category": "core"
+      },
+      {
+        "name": "Machine Learning DevOps",
+        "credits": 2,
+        "category": "upper-division",
+        "notes": "MLOps tooling — pipelines, deployment and monitoring."
+      },
+      {
+        "name": "Natural Language Processing for AI Engineers",
+        "credits": 3,
+        "category": "upper-division"
+      },
+      {
+        "name": "Computer Vision for AI Engineers",
+        "credits": 3,
+        "category": "upper-division"
+      },
+      {
+        "name": "American Politics and the US Constitution",
+        "credits": 3,
+        "category": "gen-ed"
+      },
+      {
+        "name": "General Chemistry I Lab",
+        "credits": 1,
+        "category": "gen-ed",
+        "notes": "The lab half; the lecture transfers from Sophia but the lab does not."
+      },
+      {
+        "name": "Software Engineering",
+        "credits": 4,
+        "category": "core"
+      },
+      {
+        "name": "Applied AI Engineering",
+        "credits": 3,
+        "category": "capstone",
+        "notes": "Design, validate and deploy a real AI system end to end using industry MLOps tooling."
+      }
+    ],
+    "speedRunNotes": "Do the Sophia block first and start with Introduction to Python Programming — it is the cheapest way to produce the programming evidence admissions asks for, and it clears a real WGU course at the same time. Then accept the central fact of this degree: the engineering maths block is roughly 20 CUs of Calculus I–III, two Discrete Mathematics courses and Mathematics of AI, and apart from Linear Algebra none of it has a third-party pathway. That work happens at WGU, in sequence, and it is where the calendar actually goes. Front-load it in term one while motivation is highest, rather than hitting Calculus III and Discrete Mathematics II in the same stretch as the capstone. The AI block itself (Machine Learning, Deep Learning, NLP, Computer Vision, MLOps) rewards prior Python and linear algebra fluency more than raw hours, so anyone arriving with real ML exposure will move through term two far faster than the estimate.",
+    "admissionGate": "The strictest gate of any program here, and it has three parts, all required: college coursework with a 2.25+ GPA or a 2.75+ high school GPA; verifiable completion of precalculus with a C or better; AND prior programming coursework equivalent to a score of 3 or higher on the AP Computer Science A exam. Unlike Computer Science, maths readiness alone is not enough — you must also show you can already program before you are admitted.",
+    "paceBlockers": "The mathematics runs in a strict sequence (Calculus I before II before III, Data Structures I before II), so those CUs cannot be parallelised however many hours you put in. Azure AI Fundamentals is assessed by Microsoft's AI-900 exam, which is booked and proctored outside WGU and carries its own scheduling lead time.",
+    "sources": [
+      "https://www.wgu.edu/online-it-degrees/ai-engineering.html",
+      "https://www.wgu.edu/content/dam/wgu-65-assets/western-governors/documents/program-guides/information-technology/BSAIE.pdf",
+      "https://www.wgu.edu/financial-aid-tuition/2026-2027-tuition.html",
+      "https://wgucollegeofinformationtechnology.sophia.org/"
+    ],
+    "unranked": true
   }
 ];
 
